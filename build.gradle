@@ -1,0 +1,27 @@
+// build.gradle (root)
+
+description = 'Simple text to image converter'
+
+allprojects {
+   apply plugin: 'java'
+   apply plugin: 'eclipse'
+   
+   group = 'kkdt'
+   version = '0.1'
+   
+   eclipse {
+      classpath {
+         downloadSources=false
+      }
+   }
+   
+   repositories {
+      jcenter()
+   }
+  
+   dependencies {
+      testCompile 'junit:junit:4.12'
+   }
+}
+
+apply from : 'eclipseone.gradle'

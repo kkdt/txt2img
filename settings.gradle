@@ -1,0 +1,3 @@
+include 'lambda'
+
+rootProject.name = 'txt2img'

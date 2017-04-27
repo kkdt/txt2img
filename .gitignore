@@ -1,0 +1,11 @@
+/bin/
+build/
+logs/
+.gradle
+.classpath
+.project
+.settings
+.DS_Store
+
+# https://github.com/kkdt/gradle-java-multiprojects
+eclipseone.gradle
