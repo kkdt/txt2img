@@ -1,30 +1,17 @@
 // build.gradle (lambda)
 
-apply plugin : 'distribution'
-
 description = 'Lambda function for txt2img'
 
 dependencies {
    compile 'com.amazonaws:aws-lambda-java-core:1.1.0'
    compile rootProject
-   
-   testCompile 'junit:junit:4.12'
 }
 
-distributions {
-   main {
-      baseName = 'toImage'
-      version = ''
-      contents {
-         from compileJava
-         from processResources
-         into('lib') { from configurations.runtime }
-      }
-   }
-}
+jar.baseName = 'txt2img-lambda'
+jarSources.baseName = jar.baseName
 
-task buildLambda(type: Zip) {
-   baseName = 'txt2img-lambda'
+task zipLambda(type: Zip, description:'Build the lambda deployable package') {
+   baseName = 'lambda-deploy'
    version = ''
    from compileJava
    from processResources
@@ -32,4 +19,3 @@ task buildLambda(type: Zip) {
        from configurations.runtime
    }
 }
-

@@ -1,0 +1,153 @@
+/**
+ * MIT License
+ * Copyright (c) 2017 kkdt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+ /**
+  * All projects with the java plugin.
+  * 
+  * @return a set of projects.
+  */
+def allJavaProjects() {
+   return allprojects.findAll { project ->
+      project.plugins.hasPlugin('java')
+   }.collect() as Set
+}
+ 
+/**
+ * All library dependencies for a project, excluding jar artifacts.
+ *
+ * @return a set of file(s) to library dependencies.
+ */
+def allLibs(project) {
+   // find all subproject jar files
+   def archives = project.configurations.archives.collect {
+      it.archivePath
+   }.collect() as Set
+   
+   def allLibs = [] as Set
+
+   allLibs += project.configurations.testCompile.files.collect().flatten()
+
+   // do not include subproject jar files
+   return allLibs.minus(archives)
+}
+
+ext {
+   // location to store all projects' dependencies
+   rootLib = file(rootProject.projectDir.path + '/lib')
+}
+
+allprojects {
+   task info(description:'Useful information about project (' + project.name + ')') {
+      doLast {
+         // https://docs.gradle.org/current/dsl/org.gradle.api.Project.html
+         println '-----> user.home : ' + System.properties['user.home']
+         println '-----> project.name : ' + project.name
+         println '-----> project.version : ' + project.version
+         println '-----> project.projectDir : ' + project.projectDir
+         println '-----> project.buildDir : ' + project.buildDir
+         println '-----> (simpletasks) rootLib : ' + rootProject.rootLib
+         // not indented for visual formatting
+         if(project.plugins.hasPlugin('java')) {
+            println '-----> (java) archivesBaseName : ' + archivesBaseName
+            println '-----> (java) jar.archivePath : ' + jar.archivePath
+            println '-----> (java) libsDir : ' + libsDir
+            println '-----> (java) libsDirName : ' + libsDirName
+            println '-----> (java) distsDir : ' + distsDir
+            println '-----> (java) distsDirName : ' + distsDirName
+         }
+      }
+   }
+   
+   task allLibraries(description:'Print all libraries') {
+      doLast {
+         println '' + allLibs(project).each { it }
+      }
+   }
+   allLibraries.onlyIf { project.plugins.hasPlugin('java') }
+   
+   task allSources(description:'Prints all java sources for each project') {
+      doLast {
+         print project
+         def sources = project.sourceSets.collect()
+         println ' ' + sources.collect { it.java.srcDirs }
+      }
+   }
+   allSources.onlyIf { project.plugins.hasPlugin('java') }
+   
+   task allInfo(description: 'Information about all project(s)') {
+      doLast {
+         println project.name + ': ' + project.jar.archiveName
+         // archive full path
+         println '   ' + project.jar.archivePath
+         // display configurations
+         project.configurations.each {
+            println '   ' + it + ' ' + it.description
+         }
+      }
+   }
+   allInfo.onlyIf { project.plugins.hasPlugin('java') }
+   
+   if(project != rootProject || project.plugins.hasPlugin('java')) {
+      task stageAll(type: Copy, description: 'Stage only runtime library dependencies') {
+         into rootProject.rootLib
+         from configurations.runtime
+      }
+   
+      task stage(type: Copy, description: 'Stage all runtime and test library dependencies') {
+         into rootProject.rootLib
+         from configurations.testCompile
+      }
+      
+      task jarSources(type: Jar, dependsOn: classes, description:'Generate source artifacts') {
+         from sourceSets.main.allSource
+         classifier = 'src'
+         destinationDir = rootLib
+      }
+      
+      task jarJavadocs(type: Jar, dependsOn: javadoc, description:'Generate Javadoc artifacts') {
+         from javadoc.destinationDir
+         classifier = 'javadoc'
+         destinationDir = rootLib
+      }
+      
+      artifacts {
+         archives jar
+         archives jarSources
+      }
+      
+      task cleanAll(description: 'Clean all artifacts created by this project build') {
+         doLast {
+            delete rootProject.rootLib
+         }
+      }
+      cleanAll.dependsOn 'clean'
+   }
+   
+   tasks.withType(Jar) {
+      destinationDir = rootLib
+   }
+   
+   tasks.withType(Zip) {
+      destinationDir = rootLib
+   }
+}

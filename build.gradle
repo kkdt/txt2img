@@ -18,10 +18,29 @@ allprojects {
    repositories {
       jcenter()
    }
-  
-   dependencies {
-      testCompile 'junit:junit:4.12'
-   }
 }
 
-apply from : 'eclipseone.gradle'
+dependencies {
+   testCompile 'junit:junit:4.12'
+}
+
+// https://github.com/kkdt/gradle-java-multiprojects
+if(file('eclipseone.gradle').exists()) {
+   apply from : 'eclipseone.gradle'
+}
+
+// https://github.com/kkdt/gradle-cumulative
+apply from : 'simpletasks.gradle'
+
+task all(dependsOn:['jar','jarSources', ':lambda:jar', ':lambda:jarSources', ':lambda:zipLambda'], description: 'Build all artifacts') {}
+
+//distributions {
+//   main {
+//      baseName = 'txt2img'
+//      contents {
+//         from compileJava
+//         from processResources
+//         into('lib') { from configurations.runtime }
+//      }
+//   }
+//}
