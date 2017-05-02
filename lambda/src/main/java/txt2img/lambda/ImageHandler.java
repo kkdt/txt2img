@@ -66,10 +66,10 @@ public class ImageHandler {
     * @return
     */
    private int getFontSize(Map<String, String> input) {
-      String font = input.get("size");
+      String str = input.get("size");
       int size = 20;
-      if(font != null && font.length() > 0) {
-         size = Integer.parseInt(font);
+      if(str != null && str.length() > 0) {
+         size = Integer.parseInt(str);
       }
       return size;
    }
@@ -93,12 +93,17 @@ public class ImageHandler {
       }
       
       TextToGraphics2D converter = new TextToGraphics2D();
-      converter.setFont(getFont(input));
+      String font = getFont(input);
+      Integer size = null;
+      converter.setFont(font);
       try {
-         converter.setFontSize(getFontSize(input));
+         size = getFontSize(input);
+         if(size != null) converter.setFontSize(size);
+         context.getLogger().log("Converting text:" + text + ", font:" + font + ", size:" + size);
          result = converter.toImage(text);
-      } catch (Exception e) {}
-      
+      } catch (Exception e) {
+         context.getLogger().log("" + e.getMessage() + ", font:" + font + ", size:" + size);
+      }
       return result;
    }
 }

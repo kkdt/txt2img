@@ -1,0 +1,11 @@
+{
+  "name": "txt2img-lambda",
+  "version": "1.0.0",
+  "description": "Access txt2img Lambda function on AWS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thinh Ho",
+  "license": "MIT"
+}

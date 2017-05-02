@@ -7,6 +7,7 @@ lib/
 .project
 .settings
 .DS_Store
+node_modules
 
 # https://github.com/kkdt/gradle-java-multiprojects
 eclipseone.gradle

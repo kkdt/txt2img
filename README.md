@@ -1,6 +1,6 @@
 # txt2img
 
-This is a simple routine for turning an input text into image data, similar to a captcha but not so smart. In addition, it captures the routine as a deployable Amazon Web Service Lambda function.
+This is a simple routine for turning an input text into image data, similar to a captcha but not so smart. In addition, it packages the routine as a deployable Amazon Web Service Lambda function.
 
 ## Quick start
 
@@ -17,6 +17,13 @@ Artifacts (5 total)
 
 The Lambda function can be configured with an environment variable `textLimit` that will not do any conversion if the input text is greater than the configured value. If not set, then the default value is 50 characters long.
 
+Lambda configuration
+- Code entry type: .zip/jar file
+- Runtime: Java 8
+- Handler: `txt2img.lambda.ImageHandler::toImage`
+- Memory: 128MB
+- Timeout: 5s
+
 Example input to Lambda function:
 
 ```
@@ -25,4 +32,16 @@ Example input to Lambda function:
   "font": "Arial",
   "size": 20
 }
+```
+
+## Lambda Node.js 
+
+A simple Node.js project is included to test the deployed Lambda function. It is assumed that you have `~/.aws/credentials` configured. 
+
+Navigate into `nodejs` and execute:
+
+```
+npm install aws-sdk
+npm install prompt
+node index.js
 ```

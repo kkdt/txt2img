@@ -36,6 +36,8 @@ public class Text2ImageFrame extends JFrame
    private static final long serialVersionUID = 195825163958609193L;
    
    private JTextField input;
+   private JTextField fontInput;
+   private JTextField sizeInput;
    private JLabel message;
    private JButton generateBtn;
    
@@ -55,12 +57,18 @@ public class Text2ImageFrame extends JFrame
    
    private JPanel buildComponents() {
       input = new JTextField(20);
+      fontInput = new JTextField(5);
+      sizeInput = new JTextField(5);
       message = new JLabel("Enter text and hit 'Generate' button");
       generateBtn = new JButton("Generate");
       
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       panel.add(new JLabel("Text:"));
       panel.add(input);
+      panel.add(new JLabel("Font:"));
+      panel.add(fontInput);
+      panel.add(new JLabel("Size:"));
+      panel.add(sizeInput);
       panel.add(generateBtn);
       
       JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -101,7 +109,13 @@ public class Text2ImageFrame extends JFrame
       
       if(text.length() > 0) {
          TextToGraphics2D converter = new TextToGraphics2D();
-         converter.setFont("Arial");
+         try{
+            converter.setFont(fontInput.getText().trim().length() > 0 ? fontInput.getText().trim() : "Arial");
+            converter.setFontSize(Integer.parseInt(sizeInput.getText().trim()));
+         } catch (Exception e) {
+            info("Invalid inputs: " + e.getMessage());
+            return;
+         }
          
          Date start = new Date();
          byte[] data = converter.toImage(text);
